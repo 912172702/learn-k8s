@@ -105,11 +105,16 @@ docker run -d centos /bin/sh -c "while true;do echo hello caohui ;sleep 2; done"
 
 -t表示显示时间，-f表示实时获取。
 
+#### 1.5.8 docker attach
+
+`docker attach [容器id 货 容器名]` 重新进入容器的tty。注意，这时候执行exit会直接导致容器进程退出。
+
 #### 1.5.8 docker exec
 
 在Docker外部执行命令控制docker
 
 ```sh
 docker exec -it mycentos ls #交互式的打印mycentos容器内的文件目录
-docker exec -it mycentos /bin/bash #交互式打开mycentos容器中的bash，并进入操作。
+docker exec -it mycentos /bin/bash #交互式打开mycentos容器中的bash，并进入操作。注意，这个时候exit命令不会导致容器进程退出。
 ```
+
