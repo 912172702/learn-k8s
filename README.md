@@ -37,5 +37,5 @@ docker run [镜像名]
 
 先在本机找有没有这个镜像，如果没有，就去docker的仓库中拉取这个镜像并运行。过程如下。
 
-[![7841-CA50-CB33-4-EE0-A876-F05541-E15-AC4.jpg](https://i.postimg.cc/mkhM9vBr/7841-CA50-CB33-4-EE0-A876-F05541-E15-AC4.jpg)](https://postimg.cc/xNDcDFkr)
+![流程](https://t1.picb.cc/uploads/2019/06/23/gce05v.jpg)
 
