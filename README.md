@@ -8,7 +8,7 @@ Docker是一种虚拟化技术，它比虚拟机更轻量，不考虑考虑硬�
 
 ### 1.2 Docker的整体架构 
 
-![AD272-A13-6-D9-B-4511-987-D-6119-C23399-A0.jpg](https://i.postimg.cc/j2fFqbzN/AD272-A13-6-D9-B-4511-987-D-6119-C23399-A0.jpg)
+![AD272-A13-6-D9-B-4511-987-D-6119-C23399-A0.jpg](https://t1.picb.cc/uploads/2019/06/23/gceSXi.jpg)
 
 #### 1.2.1 镜像和仓库 
 
