@@ -22,7 +22,7 @@
 
 ##### 1.1.2.1. 执行计划
 
-之前写了一篇关于SQL Server执行计划的学习总结，[点击查看]()
+之前写了一篇关于SQL Server执行计划的学习总结，[点击查看](https://yuque.antfin-inc.com/ob/platform/mr25eu)
 
 OceanBase的执行计划类似于SQL Server的执行计划，其中关于什么是算子(Operator), 什么是索引扫描(Index Scan), 什么是表扫描(Table Scan)等等在学习总结中写的非常清楚了。
 
@@ -317,7 +317,7 @@ username | Y | 用户名
 
 例
 
-```json
+```java
 {
   "code" : 1000,
   "msg" : "成功！",
@@ -353,7 +353,7 @@ orderBy | Y | 排序列，默认按照SQL开始时间倒序
 
 例
 
-```json
+```java
 {
   "code" : 1000,
   "msg" : "成功",
@@ -387,7 +387,7 @@ traceId | Y | Query的唯一ID
 
 例
 
-```json
+```java
 {
   "code" : 1000,
   "msg" : "成功！",
@@ -522,7 +522,7 @@ Tomcat天然适应这种方式。Tomcat处理请求的方式是一种生产者�
 - `Ant Design` 蚂蚁金服的前端UI框架，封装了数十样精美常用UI组件，加快前端开发速度。
 - `MockJS` 一个API接口模拟框架，拦截JS的的Ajax请求，将请求转发到本地JSON数据，但前端应用本身无感知。做到前后端完全分离开发，减小开发难度。
 
-之前写了一篇React学习总结，[点这里查看]()
+之前写了一篇React学习总结，[点这里查看](https://yuque.antfin-inc.com/ob/platform/bffxik)
 
 ### 2.2. 页面规划
 
