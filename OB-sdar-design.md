@@ -36,7 +36,7 @@ OceanBase是一个分布式关系数据库，一张表可以划分为不同分�
 
 比如扫描一张10000行的表，表有100各个分区，分布在10台机器上。则主控机器的扫描操作分成不同的task，分发给这10台机器，为了快速，每台机器可能有多个线程(task)去并行执行这个job。
 
-### 1.2. 实时模块相关视图
+### 1.2. 相关视图
 
 OceanBase内核部分对实时SQL监控的相关视图还没有开发完成，需要我自己去设计视图。我所设计的视图如下。
 
@@ -173,7 +173,90 @@ WORKAREA_MAX_TEMPSEG | BIGINT | 0 | 最大使用临时空间大小
 - DONE_ALL_ROWS 输出所有行后结束
 - DONE 执行正常结束
 
-### 1.3. 实时模块Entity类设计
+#### 1.2.4 gv$SQL_AUDIT视图
+
+gv$SQL_AUDIT视图中保存了每条最近执行的每条历史SQL的信息。具体字段如下。
+
+字段名 | 字段类型 | 默认值 | 备注
+------|-----|-----|-----
+SVR_IP | VARCHAR(32) | NULL | 实例服务器IP 
+SVR_PORT | BIGINT(20) | NULL | 实例服务器端口
+REQUEST_ID | BIGINT(20) | NULL | 请求ID
+SQL_EXEC_ID | BIGINT(20) | NULL | SQL执行ID
+TRACE_ID | VARCHAR(128) | NULL | query的唯一标识
+SID | BIGINT(20) UNSIFNED | NULL | SessionId
+CLIENT_IP | VARCHAR(32) | NULL | 发起请求的客户端IP
+CLIENT_PORT | BIGINT(20) | NULL | 发起请求的客户端端口号
+TENANT_ID | BIGINT(20) | NULL | 租户ID
+TENANT_NAME | VARCHAR(64) | NULL | 租户名
+USER_ID | BIGINT(20) | NULL | 用户ID
+USER_NAME | VARCHAR(64) | NULL | 用户名
+USER_CLIENT_IP | VARCHAR(32) | NULL | 用户客户端IP
+DB_ID | BIGINT(20) UNSIGNED | NULL | 数据库ID
+DB_NAME | VARCAHR(128) | NULL | 数据库名
+SQL_ID | VARCAHR(32) | NULL | SQL的ID
+QUERY_SQL | VARCAHR(65536) | NULL | 实际的请求SQL
+PLAN_ID | BIGINT(20) | NULL | 执行计划ID
+AFFECTED_ROWS | BIGINT(20) | NULL | sql影响的行数
+RETURN_ROWS | BIGINT(20) | NULL | 返回的行数
+PARTITION_CNT | BIGINT(20) | NULL | 分区总数
+RET_CODE | BIGINT(20) | NULL | 返回码
+QC_ID | BIGINT(20) UNSIGNED | NULL | job调度者ID
+DFO_ID | BIGINIT(20) | NULL | job的ID
+SQC_ID | BIGING(20) | NULL | task的ID
+WORKER_ID | BIGINT(20) | NULL | 工作线程ID
+EVENT | VARCHAR(64) | NULL | 最长等待事件名称
+P1TEXT | VARCAHR(64) | NULL | 等待事件参数1
+P1 | BIGINT(20) UNSIGNED | NULL | 等待事件参数1的值
+P2TEXT | VARCHAR(64) | NULL | 等待事件参数2
+P2 | BIGINT(20) UNSIGNED | NULL | 等待事件参数2的值
+P3TEXT | VARCHAR(64) | NULL | 等待事件参数3
+P3 | BIGINT(20) UNSIGNED | NULL | 等待事件参数3的值
+LEVEL | BIGINT(20) | NULL | 等待事件的level级别
+WAIT_CLASS_ID | BIGINT(20) | NULL | 等待事件所属的class id
+WAIT_CLASS# | BIGINT(20) | NULL | 等待事件所属的class的下标
+WAIT_CLASS | VARCHAR(64) | NULL | 等待事件所属的class名称
+STATE | VARCAHR(19) | NULL |  等待事件的状态
+WAIT_TIME_MICRO | BIGINIT(20) | NULL | 该等待事件所等待的时间
+TOTAL_WAIT_TIME_MICRO | BIGINT(20) | NULL | 执行过程中所有等待事件的总时间
+TOTAL_WAITS | BIGINT(20) | NULL | 执行过程中等待的次数
+RPC_COUNT | BIGINT(20) | NULL | 发送rpc的个数
+PLAN_TYPE | BIGINT(20) | NULL | 执行计划类型
+IS_INNER_SQL | TINYINT(4) | NULL | 是否是内部SQL
+IS_EXECUTOR_RPC | TINYINT(4) | NULL | 当前请求是否是RPC请求
+IS_HIT_PLAN | TINYINT(4) | NULL | 是否命中plan_cache
+REQUEST_TIME | BIGINT(20) | NULL | 开始执行的时间点
+ELAPSED_TIME | BIGINIT(20) | NULL | 接收到请求到执行结束的时间
+NET_TIME | BIGINT(20) | NULL | 发送rpc到接收到请求的时间
+NET_WAIT_TIME | BIGINT(20) | NULL | 接受到请求到进入队列的时间
+QUEUE_TIME | BIGINT(20) | NULL | 请求在队列中的等待时间
+DECODE_TIME | BIGINT(20) | NULL | 出队列后decode的时间
+GET_PLAN_TIME | BIGINT(20) | NULL | 开始process到获得plan的时间
+EXECUTE_TIME | BIGINT(20) | NULL | plan执行消耗时间
+APPLICATION_WAIT_TIME | BIGINT(20) UNSIGNED | NULL | 所有application类事件的总时间
+CONCURRENCY_WAIT_TIME | BIGINT(20) UNSIGNED | NULL | 所有concurrency类事件的总时间
+USER_IO_WAIT_TIME | BIGINT(20) UNSIGNED | NULL | 所有user_io类事件的总时间
+SCHEDULE_TIME | BIGINT(20) UNSIGNED | NULL | 所有schedule类事件的时间
+ROW_CACHE_HIT | BIGINT(20) | NULL | 命中行缓存的次数
+BLOOM_FILTER_CACHE_HIT | BIGINT(20) | NULL | 命中Bloom过滤器缓存的次数
+BLOCK_CACHE_HIT | BIGINT(20) | NULL | 命中块缓存的次数
+BLOCK_INDEX_CACHE_HIT | BIGINT(20) | NULL | 命中块索引缓存的次数
+DISK_READS | BIGINT(20) | NULL | 物理读次数
+RETRY_CNT | BIGINT(20) | NULL | 重试次数
+TABLE_SCAN | TINYINT(4) | NULL | 是否是表扫面操作
+CONSISTENCY_LEVEL | BIGINT(20) | NULL | 并发级别
+MEMSTORE_READ_ROW_COUNT | BIGINT(20) | NULL | 读取memstore的行数
+SSSTORE_READ_ROW_COUNT | BIGINT(20) | NULL | 读取ssstore的行数
+REQUEST_MEMORY_USED | BIGINT(20) | NULL | 请求的内存大小
+EXPECTED_WORKER_COUNT | BIGINT(20) | NULL | 期望的工作线程数
+USED_WORKER_COUNT | BIGINT(20) | NULL | 实际的工作线程数
+SCHED_INFO | VARCAHR(16384) | NULL |  schedule信息
+FUSE_ROW_CACHE_HIT | BIGINT(20) | NULL | ---
+
+
+### 1.3. Entity类设计
+
+gv$SQL_MONITOR对应的Entity
 
 ```java
 public class SqlMonitor {
@@ -232,6 +315,8 @@ public class SqlMonitor {
 }
 ```
 
+gv$PLAN_CACHE_PLAN_EXPLAIN对应的Entity
+
 ```java
 public class PlanExplain {
     private int tenantId;
@@ -249,6 +334,8 @@ public class PlanExplain {
     private List<SqlPlanMonitor> planMonitors = new ArrayList<>();
 }
 ```
+
+gv$SQL_PLAN_MONITOR对应的Entity
 
 ```java
 public class SqlPlanMonitor {
@@ -285,7 +372,87 @@ public class SqlPlanMonitor {
 }
 ```
 
-### 1.4. 实时模块接口设计
+gv$SQL_AUDIT对应的Entity
+
+```java
+public class SqlAudit {
+    private String svrIp;
+    private long svrPort;
+    private long requestId;
+    private long sqlExecId;
+    private String traceId;
+    private String  sid;
+    private String clientIp;
+    private long clientPort;
+    private long tenantId;
+    private String tenantName;
+    private long userId;
+    private String userName;
+    private String userClientIp;
+    private String dbId;
+    private String dbName;
+    private String sqlId;
+    private String querySql;
+    private long planId;
+    private long affectedRows;
+    private long returnRows;
+    private long partitionCnt;
+    private long retCode;
+    private String qcId;
+    private long dfoId;
+    private long sqcId;
+    private long workerId;
+    private String event;
+    private String p1text;
+    private String p1;
+    private String p2text;
+    private String p2;
+    private String p3text;
+    private String p3;
+    private long level;
+    private long waitClassId;
+    private long waitClassNum;
+    private String waitClass;
+    private String state;
+    private long waitTimeMicro;
+    private long totalWaitTimeMicro;
+    private long totalWaits;
+    private long rpcCount;
+    private long planType;
+    private boolean innerSql;
+    private boolean executorRpc;
+    private boolean hitPlan;
+    private long requestTime;
+    private long elapsedTime;
+    private long netTime;
+    private long netWaitTime;
+    private long queueTime;
+    private long decodeTime;
+    private long getPlanTime;
+    private long executeTime;
+    private long applicationWaitTime;
+    private long concurrencyWaitTime;
+    private long userIoWaitTime;
+    private long scheduleTime;
+    private long rowCacheHit;
+    private long bloomFilterCacheHit;
+    private long blockCacheHit;
+    private long blockIndexCacheHit;
+    private long diskReads;
+    private long retryCnt;
+    private boolean tableScan;
+    private long consistencyLevel;
+    private long memstoreReadRowCount;
+    private long ssstoreReadRowCount;
+    private long requestMemoryUsed;
+    private long expectedWorkerCount;
+    private long usedWorkerCount;
+    private String schedInfo;
+    private long fuseRowCacheHit;
+}
+```
+
+### 1.4. 模块接口设计
 
 #### 1.4.1 登录接口
 
@@ -317,7 +484,7 @@ username | Y | 用户名
 
 例
 
-```json
+```java
 {
   "code" : 1000,
   "msg" : "成功！",
@@ -353,12 +520,12 @@ orderBy | Y | 排序列，默认按照SQL开始时间倒序
 
 例
 
-```json
+```java
 {
   "code" : 1000,
   "msg" : "成功",
   "obj" : [
-    // 实时Query分页数据
+    //实时SQL页
   ]
 }
 ```
@@ -387,7 +554,7 @@ traceId | Y | Query的唯一ID
 
 例
 
-```json
+```java
 {
   "code" : 1000,
   "msg" : "成功！",
@@ -397,7 +564,77 @@ traceId | Y | Query的唯一ID
 }
 ```
 
-### 1.5. 实时模块VO设计
+#### 1.4.4. 分页获取历史Query信息
+
+##### 接口地址
+
+`GET /v1/sqlMonitor/statementAuditInfo/list`
+
+##### 请求参数
+
+formData
+
+参数名 | Required | 备注
+------ | --------| ------
+pageNumber | Y | 页面号
+pageSize | Y | 页面大小
+orderBy | Y | 排序列，默认按照SQL开始时间倒序
+
+##### Reponse格式
+
+返回状态码
+
+- 1000 成功
+- 2001 TOKEM过期，重新登录
+- 2003 缺少请求参数
+
+例
+
+```java
+{
+  "code" : 1000,
+  "msg" : "成功",
+  "obj" : [
+    //历史SQL页
+  ]
+}
+```
+
+#### 1.4.5. 获取单条历史Query信息
+
+##### 接口地址
+
+``GET /v1/sqlMonitor/statementAuditInfo/get``
+
+##### 请求参数
+
+FormData
+
+参数名 | Required | 备注
+------ | --------| ------
+traceId | Y | Query的唯一ID
+
+##### Reponse格式
+
+返回状态码
+
+- 1000 成功
+- 2001 TOKEM过期，重新登录
+- 2003 缺少请求参数
+
+例
+
+```java
+{
+  "code" : 1000,
+  "msg" : "成功！",
+  "obj" : {
+    //单条Query详情信息
+  }
+}
+```
+
+### 1.5. VO设计
 
 VO类是与前端交互的类，返回给前端的JSON中通常不直接是Entity，而是将需要的数据抽取成一个类，经处理后返回给前端。
 
@@ -464,6 +701,73 @@ public class SqlStatement {
     private long ssstoreReadRowCount;//
     private List<SqlMonitor> sqlMonitors = new ArrayList<>();
     private List<PlanExplain> planExplains = new ArrayList<>();
+}
+```
+
+#### 1.5.3. SqlAuditStatement
+
+一个SqlAuditStatement实例是一条Query对应的多条SqlAudit的汇总信息，sqlAudits是这条Query对应的所有sql_audit, planExplains是这个query使用的执行计划算子。
+
+```java
+public class SqlAuditStatement {
+    private String svrIp;
+    private long svrPort;
+    private String traceId;
+    private String clientIp;
+    private long clientPort;
+    private long tenantId;
+    private String tenantName;
+    private long userId;
+    private String userName;
+    private String userClientIp;
+    private String dbId;
+    private String dbName;
+    private String sqlId;
+    private String querySql;
+    private long planId;
+    private long affectedRows;
+    private long returnRows;
+    private long partitionCnt;
+    private long totalWaitTimeMicro;
+    private long totalWaits;
+    private long rpcCount;
+    private long planType;
+    private boolean innerSql;
+    private boolean executorRpc;
+    private boolean hitPlan;
+    private long requestTime;
+    private long endTime;
+    private long elapsedTime;
+    private long netWaitTime;
+    private long queueTime;
+    private long decodeTime;
+    private long getPlanTime;
+    private long executeTime;
+    private long sqlTime;
+    private long applicationWaitTime;
+    private long concurrencyWaitTime;
+    private long userIoWaitTime;
+    private long scheduleTime;
+    private long dbTime;
+    private long rowCacheHit;
+    private long bloomFilterCacheHit;
+    private long blockCacheHit;
+    private long blockIndexCacheHit;
+    private long cacheHit;
+    private long diskReads;
+    private long retryCnt;
+    private boolean tableScan;
+    private long consistencyLevel;
+    private long memstoreReadRowCount;
+    private long ssstoreReadRowCount;
+    private long storeReadRowCount;
+    private long requestMemoryUsed;
+    private long expectedWorkerCount;
+    private long usedWorkerCount;
+    private String schedInfo;
+    private long fuseRowCacheHit;
+    private List<PlanExplain> planExplains = new ArrayList<>();
+    private List<SqlAudit> sqlAudits = new ArrayList<>();
 }
 ```
 
@@ -539,7 +843,7 @@ Tomcat天然适应这种方式。Tomcat处理请求的方式是一种生产者�
 - `username` 用户名
 - `password` 密码
 
-#### 2.2.2. SQL列表页
+#### 2.2.2. 实时SQL列表页
 
 ![SQL列表](https://t1.picb.cc/uploads/2019/06/25/gcxHTj.png)
 
@@ -559,7 +863,7 @@ SQL列表页分页地显示每个SQL的执行情况，这个执行情况是大�
 - `SQL End Time` SQL 结束时间
 - `Query Text` 完整的SQL请求
 
-#### 2.2.3. SQL详情页
+#### 2.2.3. 实时SQL详情页
 
 ![详情页](https://t1.picb.cc/uploads/2019/06/25/gcx5Zc.jpg)
 
@@ -591,6 +895,59 @@ SQL详情页分为两部分，上面是SQL Overview，可以看到SQL执行的�
 
 ![timeline](https://t1.picb.cc/uploads/2019/06/25/gcx9wi.jpg)
 
+#### 2.2.4 历史SQL列表页
+
+![audit_list](https://t1.picb.cc/uploads/2019/07/09/gGboyg.png)
+
+历史SQL列表页展示了最近的已执行完的SQL的历史信息。分为以下21个条目。
+
+- `Trace ID` Query的唯一标记，表示一个Query。
+- `User` 发送Query的用户名。
+- `Database Name`  连接的数据库名称。
+- `Hit Plan` 是否命中计划缓存。
+- `Plan ID` 使用的计划ID。
+- `Elapsed Time` Query执行时间。
+- `Request Time` 请求时间。
+- `End Time` 结束时间。
+- `SQL Time` 分层显示SQL的网络等待时间、在队列中的时间、解码时间、获取Plan时间、和SQL的执行时间。
+- `Database Time` 分层显示执行过程中，application类事件等待时间、并发类事件等待事件、用户I/O类事件等待时间、schedule类事件等待时间。
+- `Cache Hit` 分层显示各种缓存的命中次数。
+- `Affected Rows` 影响行数。
+- `Return Rows` 返回的行数。
+- `Total Wait Time` 总等待时间。
+- `Total Waits` 总的等待次数。
+- `RPC Count` RPC总次数。
+- `Disk Reads` 读磁盘次数。
+- `Retry Cnt` 重试次数。
+- `Store Reads` MemStore和SSStore的读取次数。
+- `Used Worker Count` 使用的工作线程总数
+- `Query Sql` 实际的SQL语句
+
+#### 2.2.5 历史SQL详情页
+
+![audit_detail](https://t1.picb.cc/uploads/2019/07/09/gGj2QG.png)
+
+历史SQL详情页展示了一条历史SQL的详情信息，有三大部分组成。
+
+- `Overview` Query执行总揽，与实时Query的总揽类似
+- `SQL Audits` 这个Query对应的所有SQL_AUDIT，第一行为分布式执行中分发SQL的节点，每行显示如下字段。
+    - `IP` 执行该SQL子计划的实例IP。
+    - `PORT` 执行该SQL子计划的实例端口号。
+    - `State` 执行的状态。
+    - `Time Line` 该子计划执行的时间段。
+    - `Total Wait` 该子计划的总的等待时间。
+    - `Database Time` 分层显示执行过程中，application类事件等待时间、并发类事件等待事件、用户I/O类事件等待时间、schedule类事件等待时间。
+    - `SQL Wait Time` 分层显示SQL的网络等待时间、在队列中的时间、解码时间、获取Plan时间、和SQL的执行时间。
+    - `Cache Hit` 分层显示各种缓存的命中次数。
+    - `Store Reads` MemStore和SSStore的读取次数。
+    - `Affected Rows` 影响行数。
+    - `Return Rows` 返回的行数。
+- `Detail` 与实时SQL的Detail模块相似。
+
+点击任何算子的TimeLine字段，都会显示每个算子的执行细节。如下所示。
+
+![time_line](https://t1.picb.cc/uploads/2019/07/09/gGjJDy.png)
+
 ### 2.3. 跨域问题解决
 
 跨域问题的出现是由于浏览器的同源策略，即，浏览器发送的API请求要和地址栏里的URL拥有相同的协议、域名、端口号，否则，浏览器认为请求是不安全的，拒绝携带Cookie。由于现在流行的web网站都使用前后端分离的方式开发，前端代码和后端代码可能部署在不同的服务器上，所以在程序员没有手动设置允许跨域前，前后端是无法通信的。
@@ -598,4 +955,3 @@ SQL详情页分为两部分，上面是SQL Overview，可以看到SQL执行的�
 目前跨域问题的通常解决办法是设置代理，常见的反向代理工具是Nginx，将前端代码部署在Nginx服务上，Nginx通过配置url映射，将浏览器的请求转发到服务端。这样，浏览器端可以请求和浏览器地址栏相同的域名，Nginx拦截后，根据配置转发到正确的服务端。“欺骗”了浏览器。
 
 而我的解决方式不是使用用Nginix，而是通过后端手动设置response的参数，来允许响应带回Cookie，前端设置全局请求的withCredentials = true，来允许前端请求携带Cookie。当然这种解决方式是不太安全的，后期也很方便整改。
-
