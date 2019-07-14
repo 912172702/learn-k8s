@@ -10,7 +10,7 @@ Docker是一种虚拟化技术，它比虚拟机更轻量，不考虑考虑硬�
 
 ![AD272-A13-6-D9-B-4511-987-D-6119-C23399-A0.jpg](https://t1.picb.cc/uploads/2019/06/23/gceSXi.jpg)
 
-#### 1.2.1 镜像和仓库 
+#### 1.2.1 镜像和仓库
 
 - 镜像是一个模版，用来创建Docker容器，镜像(image)和容器(container)的关系类似于Java中的类和对象的关系
 - 仓库(Repository)是存放镜像的场所
@@ -71,7 +71,7 @@ docker 信息
 
 `docker rmi -f 镜像名1 镜像名2`删除多个镜像
 
-#### 1.5.8 docker run 
+#### 1.5.8 docker run
 
 启动一个docker容器
 
