@@ -6,7 +6,7 @@
 
 Docker是一种虚拟化技术，它比虚拟机更轻量，不考虑考虑硬件设备的虚拟化，只提供需要的软件依赖。所以比虚拟机更加简便、容易移植。开发人员将软件产品和它的所有依赖库都打包到一个Docker镜像中，交给运维，大大减少了运维的工作量。因此开发可以代替运维，萌生出了一种新的职业，DepOps，开发/运维 工程师。
 
-### 1.2 Docker的整体架构 
+### 1.2 Docker的整体架构
 
 ![AD272-A13-6-D9-B-4511-987-D-6119-C23399-A0.jpg](https://t1.picb.cc/uploads/2019/06/23/gceSXi.jpg)
 
@@ -65,7 +65,7 @@ docker 信息
 
 `docker search -s 30 tomcat` 查看所有点赞数大于等于30的tomcat镜像
 
-#### 1.5.7 docker rmi 
+#### 1.5.7 docker rmi
 
 `docker rmi -f [镜像名]`删除单个镜像
 
@@ -84,7 +84,7 @@ docker pull centos
 然后启动它
 
 ```sh
-docker run -i -t centos 
+docker run -i -t centos
 ```
 
 `-i`的作用是以交互式的方式启动，`-t`是启动一个tty，terminal，这时就登录了docker内的centos
@@ -118,3 +118,21 @@ docker exec -it mycentos ls #交互式的打印mycentos容器内的文件目录
 docker exec -it mycentos /bin/bash #交互式打开mycentos容器中的bash，并进入操作。注意，这个时候exit命令不会导致容器进程退出。
 ```
 
+#### 1.5.9 docker cp
+
+- docker cp [docker_id]:[path] [宿主机path] 将docker中的文件拷贝到宿主机。
+- docker cp [宿主机path] [docker_id]:[path] 将宿主机中的文件拷贝到docker。
+
+#### 1.5.10 docker run -p
+
+docker run -p[主机端口]:[容器端口] 将docker内的端口映射到主机端口
+
+#### 1.5.11 docker commit
+
+将自己修改的container构造成image并提交到本地。命名为[tag_name]
+
+```sh
+docker commit -a=[author] -m=[commit_message] [container_id] [tag_name]
+```
+
+### Docker 容器数据卷
