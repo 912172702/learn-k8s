@@ -135,4 +135,92 @@ docker run -p[主机端口]:[容器端口] 将docker内的端口映射到主机�
 docker commit -a=[author] -m=[commit_message] [container_id] [tag_name]
 ```
 
-### Docker 容器数据卷
+### 1.6 Docker 容器数据卷
+
+#### 1.6.1 目录共享
+
+将主机的某个路径和docker共享，修改任意一方的目标目录，另外一方都会同修改。类似于将主机的目录挂载到docker中。
+
+```sh
+docker run -it -v [主机绝对路径]:[docker据对路径] [image]
+```
+
+当docker的路径后面加`:ro`时，表示docker这个目录是只读的，注意，此时在docker中不能修改该目录，但是在主机中，可以修改对应挂载的目录。
+
+```sh
+docker run -it -v [主机绝对路径]:[docker据对路径]:ro [image]
+```
+
+#### 1.6.2 Dockerfile 和 docker build
+
+当我们想将容器中的多个目录挂载到主机中时候，怎么办呢？使用Dockerfile。
+
+Dockerfile我理解类似于描述Docker镜像的文件，有一些语法，暂时不说，先看一下。
+
+```docker
+# /mydocker/dockerfile
+FROM centos #继承centos
+VOLUME ["/dataV1","/dataV2"]
+CMD echo "success...."
+CMD /bin/bash
+```
+
+然后通过docker build将这个Dickerfile编译成一个Docker镜像。
+
+```sh
+docker build -f /mydocker/dockerfile -t caohui/centos .
+```
+
+-f 指定Dockerfile的文件绝对路径。
+
+-t 指定编以后的镜像名。
+
+”.“ 是什么意思？
+
+此时，docker run运行自己的docker，在根目录下就会出现两个文件夹，/dataV1, 和/dataV2。退回到宿主机，不要关闭Container，执行docker inspect,看到如下信息。
+
+```json
+"Mounts": [
+            {
+                "Type": "volume",
+                "Name": "5ee73830ba30eee06fe80125527eca76cde9f5de93d73e3ff7262903bcaa1aa0",
+                "Source": "/var/lib/docker/volumes/5ee73830ba30eee06fe80125527eca76cde9f5de93d73e3ff7262903bcaa1aa0/_data",
+                "Destination": "/dataV1",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            },
+            {
+                "Type": "volume",
+                "Name": "5989b4423b5194330a00471e56bc0ddb1b28f15560234c20546e40ed33be62b2",
+                "Source": "/var/lib/docker/volumes/5989b4423b5194330a00471e56bc0ddb1b28f15560234c20546e40ed33be62b2/_data",
+                "Destination": "dataV2",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            }
+        ],
+```
+
+可以看到，docker中的/dataV1与主机中的目录`/var/lib/docker/volumes/5ee73830ba30eee06fe80125527eca76cde9f5de93d73e3ff7262903bcaa1aa0/_data`共享数据，/dataV2与主机中的`/var/lib/docker/volumes/5989b4423b5194330a00471e56bc0ddb1b28f15560234c20546e40ed33be62b2/_data`共享数据。
+
+#### 1.6.3 多个相同image的container共享数据文件夹
+
+首先创建一个Container
+
+```sh
+docker run -it --name dc01 caohui/centos
+```
+
+接着创建另外两个Container，volumes继承第一个Container
+
+```sh
+docker run -it --name dc02 --volumes-from dc01 caohui/centos
+docker run -it --name dc03 --volumes-from dc01 caohui/centos
+```
+
+然后发现，这三个Container的 /dataV1 和 /DataV2目录是共享的。
+
+### 1.5 Dockerfile学习
