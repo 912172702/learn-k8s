@@ -175,7 +175,7 @@ docker build -f /mydocker/dockerfile -t caohui/centos .
 
 -t 指定编以后的镜像名。
 
-”.“ 是什么意思？
+”.“ 使用当前目录的Dockerfile，指定-f的话，其实不用加这个。
 
 此时，docker run运行自己的docker，在根目录下就会出现两个文件夹，/dataV1, 和/dataV2。退回到宿主机，不要关闭Container，执行docker inspect,看到如下信息。
 
@@ -224,3 +224,38 @@ docker run -it --name dc03 --volumes-from dc01 caohui/centos
 然后发现，这三个Container的 /dataV1 和 /DataV2目录是共享的。
 
 ### 1.5 Dockerfile学习
+
+Dockerfile是构建Docker Image的原材料清单，每执行一行Dockerfile中的代码，docker就会执行一个类似于commit的操作，将原有的镜像包裹一层修改，构造成新的镜像。直到所有命令执行结束。
+
+### 1.5.1 Dockerfile中的关键字
+
+- MAINTAINER 作者姓名等信息
+- ADD 添加并压缩，第一个参数是宿主机的文件据对路径，第二个参数是解压缩到Docker中的绝对路径。
+- COPY 从宿主机拷贝文件到Docker，和ADD的区别就是它不解压缩。
+- ENV 配置环境变量
+- EXPOSE 暴露出的端口号，可多个
+- FROM 该从那个Image继承
+- LABEL 设置Image的元数据。如下
+
+```docker
+LABEL "com.example.vendor"="ACME Incorporated"
+LABEL com.example.label-with-value="foo"
+LABEL version="1.0"
+LABEL description="This text illustrates 
+
+#下面这种也可以
+LABEL multi.label1="value1" \
+      multi.label2="value2" \
+      other="value3"
+```
+
+- USER
+
+```docker
+# 指定一个用户，执行Dockerfile中的命令，如果没有指定用户组，默认是root
+USER <user>[:<group>] or
+USER <UID>[:<GID>]
+```
+
+- VOLUME 是一个字符串数组，指定多个与宿主机共享的目录
+- WORKDIR 启动该Image的Container时候，进入的目录。
